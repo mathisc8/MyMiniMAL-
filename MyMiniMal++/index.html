@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>MyMiniMAL++</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Intégration de Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+  <!-- Ajout de Font Awesome pour de meilleures icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav class="top-nav" role="navigation" aria-label="Navigation principale">
+    <!-- Section gauche: Logo et recherche -->
+    <div class="nav-left">
+      <a href="#" class="logo">
+        <i class="fas fa-book-reader logo-icon"></i>
+        <span class="logo-text">MyMiniMAL++</span>
+      </a>
+      <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Rechercher..."
+          aria-label="Rechercher des éléments" aria-expanded="false" autocomplete="off" />
+        <i class="fas fa-search search-icon"></i>
+        <ul id="suggestions" class="suggestions" role="listbox" aria-label="Suggestions de recherche"></ul>
+      </div>
+    </div>
+
+    <!-- Section centrale: Filtres et tri -->
+    <div class="nav-center">
+      <div class="filters-sort-container">
+        <button class="icon-btn" id="btn-manage-cats" title="Gérer les catégories">
+          <i class="fas fa-folder"></i>
+        </button>
+        <select id="filter-select" aria-label="Filtrer par catégorie">
+          <option value="all">Tous</option>
+        </select>
+
+        <select id="sort-select" aria-label="Trier les éléments">
+          <option value="default">Tri par défaut</option>
+          <option value="title-asc">Titre (A-Z)</option>
+          <option value="score-desc">Note (desc)</option>
+          <option value="fav-first">Favoris en premier</option>
+          <option value="progress-desc">Progression (desc)</option>
+          <option value="recently-updated">Dernièrement mis à jour</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Section droite: Actions principales -->
+    <div class="nav-right">
+      <button class="action-btn primary-btn" id="btn-open-modal">
+        <i class="fas fa-plus"></i>
+        <span class="btn-text">Ajouter</span>
+      </button>
+
+      <!-- Menu des actions secondaires -->
+      <div class="actions-menu">
+        <button class="icon-btn" id="toggle-theme-btn" title="Mode sombre/clair">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="toggle-minimal-view-btn" title="Vue minimaliste">
+          <i class="fas fa-table-cells"></i>
+        </button>
+        <button class="icon-btn" id="btn-show-stats" title="Statistiques">
+          <i class="fas fa-chart-simple"></i>
+        </button>
+        <a href="tutorial.html" class="icon-btn" title="Tutoriel">
+          <i class="fas fa-question-circle"></i>
+      </a>
+      </div>
+
+      <!-- Import/Export -->
+      <div class="import-export-group">
+        <button id="export-btn" class="icon-btn" title="Exporter">
+          <i class="fas fa-file-export"></i>
+        </button>
+        <label for="import-file" class="icon-btn" title="Importer">
+          <i class="fas fa-file-import"></i>
+          <input type="file" id="import-file" accept=".json" hidden />
+        </label>
+      </div>
+
+      <!-- Auth Buttons -->
+      <div class="auth-buttons">
+        <a href="login.html" class="auth-btn" id="btn-login" title="Se connecter">
+          <i class="fas fa-sign-in-alt"></i>
+        </a>
+        <button class="action-btn secondary-btn hidden" id="btn-logout" title="Se déconnecter">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Déconnexion</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu hamburger pour mobile -->
+    <button class="hamburger" id="hamburger" aria-label="Menu de navigation">
+      <div></div>
+      <div></div>
+      <div></div>
+    </button>
+  </nav>
+
+  <!-- ÉCRAN DE BIENVENUE -->
+  <div id="welcome-screen" class="welcome-screen hidden" aria-modal="true" role="dialog" aria-labelledby="welcome-title"
+    tabindex="-1">
+    <div class="welcome-content slide-down">
+      <h1 id="welcome-title">Bienvenue sur MyMiniMAL++</h1>
+      <p>
+        Organisez vos œuvres avec des outils intuitifs : cartes « flip », glisser-déposer,<br />
+        gestion des chapitres (+/-1), personnalisation de la couverture, favoris, notes,<br />
+        tri avancé, statistiques détaillées, mode sombre, export/import au format JSON, et bien plus encore !<br />
+        <em>Dernières nouveautés : gestion des dates, tags personnalisés et tri par mise à jour !</em>
+      </p>
+      <div class="welcome-actions">
+        <label for="dont-show-again">
+          <input type="checkbox" id="dont-show-again" />
+          Ne plus afficher
+        </label>
+        <button id="btn-close-welcome">Commencer</button>
+      </div>
+    </div>
+  </div>
+  <!-- /WELCOME SCREEN -->
+
+  <!-- SECTION LISTE DRAG & DROP -->
+  <main id="list-section"></main>
+
+  <!-- MODALE ITEM (AJOUT / EDIT) -->
+  <div id="item-modal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="modal-title" tabindex="-1">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="close-modal" id="close-modal" aria-label="Fermer la fenêtre">&times;</button>
+      <h2 id="modal-title">Ajouter un élément</h2>
+
+      <form id="item-form">
+        <input type="hidden" id="item-id" />
+        
+        <!-- Infos principales -->
+        <div class="form-section main-info">
+          <div class="form-group">
+            <label for="item-type">Catégorie *</label>
+            <select id="item-type" required aria-required="true"></select>
+          </div>
+      
+          <div class="form-group">
+            <label for="item-title">Titre *</label>
+            <input type="text" id="item-title" required placeholder="Ex: One Piece" aria-required="true" />
+            <div id="manga-autocomplete" class="autocomplete"></div>
+          </div>
+        </div>
+      
+        <!-- Stats et progression -->
+        <div class="form-section stats">
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="item-status">Statut</label>
+              <select id="item-status">
+                <option value="en-cours">En cours</option>
+                <option value="termine">Terminé</option>
+                <option value="pause">En pause</option>
+              </select>
+            </div>
+            <div class="form-group half">
+              <label for="item-score">Note /10</label>
+              <input type="number" id="item-score" min="0" max="10" step="1" value="0" />
+            </div>
+          </div>
+      
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="item-chapter">Chap/Ep actuel</label>
+              <input type="number" id="item-chapter" min="0" required value="0" />
+            </div>
+            <div class="form-group half">
+              <label for="item-total">Chap/Ep total</label>
+              <input type="number" id="item-total" min="0" value="0" />
+            </div>
+          </div>
+        </div>
+      
+        <!-- Dates -->
+        <div class="form-section dates">
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="item-start-date">Date de début</label>
+              <input type="date" id="item-start-date" />
+            </div>
+            <div class="form-group half">
+              <label for="item-end-date">Date de fin</label>
+              <input type="date" id="item-end-date" />
+            </div>
+          </div>
+        </div>
+      
+        <!-- Médias -->
+        <div class="form-section media">
+          <div class="form-group">
+            <label for="item-url">Lien</label>
+            <div class="url-generator">
+              <input type="text" id="manga-slug" placeholder="Slug (ex: mushoku-tensei)" />
+              <select id="url-type">
+                <option value="manga">Manga</option>
+                <option value="anime">Anime</option>
+              </select>
+              <button type="button" id="generate-url-btn">
+                <i class="fas fa-link"></i> Générer
+              </button>
+            </div>
+            <input type="url" id="item-url" placeholder="https://anime-sama.fr" />
+          </div>
+      
+          <div class="form-group">
+            <label for="item-cover">Couverture</label>
+            <div class="cover-controls">
+              <input type="url" id="item-cover" placeholder="URL de l'image..." />
+              <button type="button" id="find-cover-btn">
+                <i class="fas fa-search"></i> Chercher
+              </button>
+            </div>
+            <img id="cover-preview" class="cover-preview" alt="Aperçu" />
+          </div>
+        </div>
+      
+        <!-- Notes et tags -->
+        <div class="form-section notes">
+          <div class="form-group">
+            <label for="item-notes">Notes personnelles</label>
+            <textarea id="item-notes" rows="3" placeholder="Vos remarques, progressions, etc."></textarea>
+          </div>
+      
+          <div class="form-group">
+            <label for="item-tags">Tags</label>
+            <input type="text" id="item-tags" placeholder="action, comédie, etc." />
+          </div>
+      
+          <div class="form-checkbox">
+            <input type="checkbox" id="item-fav" />
+            <label for="item-fav">Ajouter aux favoris</label>
+          </div>
+        </div>
+      
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" id="cancel-btn">
+            <i class="fas fa-times"></i> Annuler
+          </button>
+          <button type="submit" id="save-btn">
+            <i class="fas fa-save"></i> Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- /MODALE ITEM -->
+
+  <!-- MODALE CATEGORIES -->
+  <div id="cat-modal" class="modal-cat hidden" aria-modal="true" role="dialog" aria-labelledby="cat-modal-title"
+    tabindex="-1">
+    <div class="modal-cat-overlay" id="cat-modal-overlay"></div>
+    <div class="modal-cat-content">
+      <button id="close-cat-modal" class="close-modal" aria-label="Fermer la fenêtre">&times;</button>
+      <h2 id="cat-modal-title">Gérer les Catégories</h2>
+      <ul id="cat-list"></ul>
+      <div class="cat-actions">
+        <input type="text" id="cat-input" placeholder="Nouvelle catégorie..." aria-label="Nouvelle catégorie" />
+        <button class="add-cat-btn" id="add-cat-btn" aria-label="Ajouter une nouvelle catégorie">+ Ajouter</button>
+      </div>
+    </div>
+  </div>
+  <!-- /MODALE CATEGORIES -->
+
+  <!-- MODALE STATS (GRAPHIQUES) -->
+  <div id="stats-modal" class="modal-stats hidden" aria-modal="true" role="dialog" aria-labelledby="stats-modal-title" tabindex="-1">
+    <div class="modal-stats-overlay" id="stats-modal-overlay"></div>
+    <div class="modal-stats-content">
+      <button id="close-stats-modal" class="close-modal" aria-label="Fermer les statistiques">&times;</button>
+      <h2 id="stats-modal-title" class="stats-title">Vue d'ensemble de votre collection</h2>
+
+      <!-- Cartes de statistiques rapides -->
+      <div class="quick-stats-grid">
+        <div class="stat-card">
+          <i class="fas fa-list"></i>
+          <h3>Total</h3>
+          <p id="stats-total">0</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-star"></i>
+          <h3>Note moyenne</h3>
+          <p id="stats-average">0</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-heart"></i>
+          <h3>Favoris</h3>
+          <p id="stats-favorites">0</p>
+        </div>
+        <div class="stat-card">
+          <i class="fas fa-tasks"></i>
+          <h3>En cours</h3>
+          <p id="stats-in-progress">0</p>
+        </div>
+      </div>
+
+      <!-- Graphiques principaux -->
+      <div class="stats-charts-container">
+        <div class="stats-chart-section">
+          <div class="stats-chart-header">
+            <h3>Répartition par catégorie</h3>
+            <div class="chart-controls">
+              <button class="chart-type-toggle" data-chart="cat">
+                <i class="fas fa-chart-bar"></i>
+              </button>
+            </div>
+          </div>
+          <canvas id="stats-chart-cat"></canvas>
+        </div>
+
+        <div class="stats-chart-section">
+          <div class="stats-chart-header">
+            <h3>Statuts</h3>
+            <div class="chart-controls">
+              <button class="chart-type-toggle" data-chart="status">
+                <i class="fas fa-chart-pie"></i>
+              </button>
+            </div>
+          </div>
+          <canvas id="stats-chart-status"></canvas>
+        </div>
+      </div>
+
+      <!-- Statistiques détaillées -->
+      <div class="detailed-stats">
+        <div class="stats-section">
+          <h3>Progression</h3>
+          <div class="progress-stats">
+            <div class="progress-item">
+              <span>Item le plus avancé:</span>
+              <p id="stats-most-advanced">-</p>
+            </div>
+            <div class="progress-item">
+              <span>Moyenne de progression:</span>
+              <p id="stats-avg-progress">0%</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <h3>Tags populaires</h3>
+          <div class="tags-cloud" id="stats-tags-cloud"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="stats-actions">
+        <button id="btn-remove-duplicates" class="stats-action-btn">
+          <i class="fas fa-broom"></i>
+          Nettoyer les doublons
+        </button>
+        <button id="btn-export-stats" class="stats-action-btn">
+          <i class="fas fa-file-export"></i>
+          Exporter les statistiques
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- /MODALE STATS -->
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast-container"></div>
+
+  <!-- SCRIPTS -->
+  <!-- Load Supabase first -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <!-- Then load our modules in the correct order -->
+  <script type="module" src="utils.js"></script>
+  <script type="module" src="supabase.js"></script>
+  <script type="module" src="script.js"></script>
+</body>
+
+</html>

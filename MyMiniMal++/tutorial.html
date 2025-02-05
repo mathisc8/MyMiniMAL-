@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyMiniMAL++ - Tutoriel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3F51B5;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --card-bg: #fff;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+        }
+
+        body.dark-mode {
+            --text-color: #fff;
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .section {
+            background: var(--card-bg);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip {
+            background: rgba(63, 81, 181, 0.1);
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+            margin: 20px 0;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        Retour à l'application
+    </a>
+
+    <div class="container">
+        <header class="header">
+            <h1>Guide d'utilisation de MyMiniMAL++</h1>
+            <p>Découvrez toutes les fonctionnalités pour gérer votre collection</p>
+        </header>
+
+        <section class="section">
+            <h2><i class="fas fa-star"></i> Fonctionnalités principales</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-plus-circle"></i> Ajouter un élément</h3>
+                    <p>Cliquez sur le bouton "Ajouter" dans la barre de navigation. Remplissez les informations requises dans le formulaire qui s'ouvre.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-search"></i> Recherche automatique</h3>
+                    <p>Commencez à taper le titre, et le système vous suggérera automatiquement des mangas/animes avec leurs couvertures.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-tasks"></i> Gestion des chapitres</h3>
+                    <p>Utilisez les boutons + et - sur chaque carte pour mettre à jour votre progression rapidement.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-cog"></i> Personnalisation</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-moon"></i> Mode sombre</h3>
+                    <p>Basculez entre les thèmes clair et sombre avec le bouton dans la barre de navigation.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-th"></i> Vue minimaliste</h3>
+                    <p>Activez la vue minimaliste pour un affichage plus compact de votre collection.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-folder"></i> Gestion des catégories</h3>
+                    <p>Créez et gérez vos propres catégories pour organiser votre collection.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-chart-bar"></i> Statistiques et données</h2>
+            
+            <div class="feature-card">
+                <h3><i class="fas fa-chart-pie"></i> Visualisation des données</h3>
+                <p>Accédez à des graphiques détaillés montrant la répartition de votre collection :</p>
+                <ul>
+                    <li>Distribution par catégorie</li>
+                    <li>Statuts (En cours, Terminé, En pause)</li>
+                    <li>Tags populaires</li>
+                    <li>Progression globale</li>
+                </ul>
+            </div>
+
+            <div class="tip">
+                <strong>Astuce :</strong> Vous pouvez exporter vos données au format JSON pour les sauvegarder ou les transférer vers un autre appareil.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-keyboard"></i> Raccourcis et astuces</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3><i class="fas fa-arrows-alt"></i> Glisser-déposer</h3>
+                    <p>Réorganisez vos éléments en les faisant glisser à la position souhaitée.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-filter"></i> Filtres et tri</h3>
+                    <p>Utilisez les options de filtrage et de tri pour organiser l'affichage de votre collection.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3><i class="fas fa-tags"></i> Tags et notes</h3>
+                    <p>Ajoutez des tags et des notes personnelles pour mieux organiser et retrouver vos contenus.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2><i class="fas fa-question-circle"></i> FAQ</h2>
+            
+            <div class="feature-card">
+                <h3>Comment sauvegarder mes données ?</h3>
+                <p>Utilisez le bouton d'export dans la barre de navigation pour télécharger vos données au format JSON.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>Comment restaurer mes données ?</h3>
+                <p>Cliquez sur le bouton d'import et sélectionnez votre fichier JSON précédemment exporté.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>Les données sont-elles synchronisées ?</h3>
+                <p>Oui, toutes vos données sont automatiquement synchronisées avec votre compte Supabase.</p>
+            </div>
+
+            <div class="tip">
+                <strong>Note importante :</strong> Pensez à vous connecter pour profiter de la synchronisation de vos données entre appareils.
+            </div>
+        </section>
+    </div>
+</body>
+</html>

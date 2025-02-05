@@ -1,0 +1,1 @@
+fermer un port local Windows : netstat -ano | findstr :PORT → repérer PID → taskkill /PID <PID> /F
