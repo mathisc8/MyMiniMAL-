@@ -474,24 +474,199 @@ a {
     }
 }
 
-/* Menu hamburger */
 .hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 24px;
-    height: 20px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
+  --line-width: 32px;
+  display: none;
+  width: var(--line-width);
+  height: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1100;
+  position: relative;
+}
+
+.hamburger::before {
+  content: '';
+  position: absolute;
+  width: var(--line-width);
+  height: 2px;
+  background: var(--text-color);
+  border-radius: 4px;
+  transition: transform 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+}
+
+.hamburger.active::before {
+  transform: rotate(135deg);
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+      display: block;
+      order: 3;
+      margin-left: auto;
+  }
+
+  .nav-right {
+      transform: translateY(-100%);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-background);
+      padding: 1rem;
+      transition: transform 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .nav-right.active {
+      transform: translateY(0);
+  }
+}.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 32px;
+  height: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1100;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.hamburger:hover {
+  transform: scale(1.1);
 }
 
 .hamburger div {
-    width: 100%;
-    height: 2px;
-    background: var(--text-color);
-    transition: all 0.3s ease;
+  width: 100%;
+  height: 2px;
+  background: var(--text-color);
+  border-radius: 2px;
+  transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+}
+
+/* Animation du hamburger */
+.hamburger.active div:nth-child(1) {
+  transform: translateY(11px) rotate(45deg);
+  width: 100%;
+}
+
+.hamburger.active div:nth-child(2) {
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.hamburger.active div:nth-child(3) {
+  transform: translateY(-11px) rotate(-45deg);
+  width: 100%;
+}
+
+/* État initial du menu */
+.hamburger div:nth-child(2) {
+  width: 80%;
+  align-self: flex-end;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+      display: flex;
+      order: 3;
+      margin-left: auto;
+  }
+
+  .top-nav {
+      flex-wrap: wrap;
+      padding: 1rem;
+      position: relative;
+  }
+
+  .nav-left {
+      flex: 1;
+      order: 1;
+  }
+
+  .nav-right {
+      width: 100%;
+      order: 4;
+      display: none;
+      padding: 1rem;
+      background: var(--card-background);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 1rem;
+  }
+
+  .nav-right.active {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+      animation: slideDown 0.3s ease-out forwards;
+  }
+
+  .nav-center {
+      width: 100%;
+      order: 3;
+      display: none;
+      margin-top: 1rem;
+  }
+
+  .nav-center.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  .actions-menu, 
+  .import-export-group {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+      padding: 0.5rem 0;
+  }
+
+  .auth-buttons {
+      justify-content: center;
+      gap: 1rem;
+  }
+
+  .filters-sort-container {
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+  }
+
+  .filters-sort-container select {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 6px;
+  }
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+      opacity: 0;
+      transform: translateY(-10px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+  }
+  to {
+      opacity: 1;
+  }
 }
 
 /* Media Queries */
@@ -1547,7 +1722,7 @@ body.dark-mode .flip-card-front {
 #find-cover-btn:hover { background-color: var(--accent-hover); transform: translateY(-2px); }
 .cover-preview {
   margin-top: 1rem;
-  max-width: 100%;
+  max-width: 300px;
   max-height: 180px;
   border: 1px solid var(--input-border);
   border-radius: 8px;

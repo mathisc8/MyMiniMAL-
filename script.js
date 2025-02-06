@@ -1368,17 +1368,35 @@ const removeDuplicates = () => {
  *               MENU HAMBURGER                      *
  ****************************************************/
 const initHamburgerMenu = () => {
-  hamburger.addEventListener("click", toggleHamburgerMenu);
-  hamburger.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggleHamburgerMenu();
-    }
-  });
-};
-const toggleHamburgerMenu = () => {
-  navRight.classList.toggle("active");
-  hamburger.classList.toggle("active");
+    const hamburger = document.getElementById('hamburger');
+    const navRight = document.querySelector('.nav-right');
+    const navCenter = document.querySelector('.nav-center');
+
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navRight.classList.toggle('active');
+        navCenter.classList.toggle('active');
+    });
+
+    // Fermer le menu quand on clique sur un lien ou en dehors
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.hamburger') && 
+            !e.target.closest('.nav-right') && 
+            !e.target.closest('.nav-center')) {
+            hamburger.classList.remove('active');
+            navRight.classList.remove('active');
+            navCenter.classList.remove('active');
+        }
+    });
+
+    // Fermer le menu quand l'écran est redimensionné
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            hamburger.classList.remove('active');
+            navRight.classList.remove('active');
+            navCenter.classList.remove('active');
+        }
+    });
 };
 
 const mangaAutocomplete = document.getElementById('manga-autocomplete');
@@ -1485,6 +1503,7 @@ if (!storedCategories) {
 const categories = JSON.parse(localStorage.getItem('categories')) || DEFAULT_CATEGORIES;
 const typeSelect = document.getElementById('item-type');
 const filterSelect = document.getElementById('filter-select');
+
 
 // Vider les selects
 typeSelect.innerHTML = '';
