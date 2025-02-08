@@ -4,20 +4,38 @@
 <head>
   <meta charset="UTF-8" />
   <title>MyMiniMAL++</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <!-- Manifest et icônes -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3F51B5">
+  
+  <!-- Icônes pour différentes plateformes -->
+  <link rel="icon" type="image/png" href="icons/iconTrans.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#3F51B5">
+  <meta name="msapplication-TileColor" content="#3F51B5">
+  <meta name="msapplication-TileImage" content="icons/icon-144x144.png">
 
-  <!-- Intégration de Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600&display=swap"
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600&display=swap"
     rel="stylesheet">
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-  <link rel="stylesheet" href="styles.css">
-  <!-- Ajout de Font Awesome pour de meilleures icônes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  />
 
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -31,8 +49,15 @@
         <span class="logo-text">MyMiniMAL++</span>
       </a>
       <div class="search-container">
-        <input type="text" id="search-input" class="search-input" placeholder="Rechercher..."
-          aria-label="Rechercher des éléments" aria-expanded="false" autocomplete="off" />
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Rechercher..."
+          aria-label="Rechercher des éléments"
+          aria-expanded="false"
+          autocomplete="off"
+        />
         <i class="fas fa-search search-icon"></i>
         <ul id="suggestions" class="suggestions" role="listbox" aria-label="Suggestions de recherche"></ul>
       </div>
@@ -66,7 +91,7 @@
         <span class="btn-text">Ajouter</span>
       </button>
 
-      <!-- Menu des actions secondaires -->
+      <!-- Menu d'actions secondaires -->
       <div class="actions-menu">
         <button class="icon-btn" id="toggle-theme-btn" title="Mode sombre/clair">
           <i class="fas fa-moon"></i>
@@ -79,7 +104,7 @@
         </button>
         <a href="tutorial.html" class="icon-btn" title="Tutoriel">
           <i class="fas fa-question-circle"></i>
-      </a>
+        </a>
       </div>
 
       <!-- Import/Export -->
@@ -104,18 +129,18 @@
         </button>
       </div>
     </div>
-
-    <!-- Menu hamburger pour mobile -->
-    <button class="hamburger" id="hamburger" aria-label="Menu de navigation">
-      <div></div>
-      <div></div>
-      <div></div>
-    </button>
+    <!-- Fin de la top-nav -->
   </nav>
 
   <!-- ÉCRAN DE BIENVENUE -->
-  <div id="welcome-screen" class="welcome-screen hidden" aria-modal="true" role="dialog" aria-labelledby="welcome-title"
-    tabindex="-1">
+  <div
+    id="welcome-screen"
+    class="welcome-screen hidden"
+    aria-modal="true"
+    role="dialog"
+    aria-labelledby="welcome-title"
+    tabindex="-1"
+  >
     <div class="welcome-content slide-down">
       <h1 id="welcome-title">Bienvenue sur MyMiniMAL++</h1>
       <p>
@@ -139,7 +164,14 @@
   <main id="list-section"></main>
 
   <!-- MODALE ITEM (AJOUT / EDIT) -->
-  <div id="item-modal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="modal-title" tabindex="-1">
+  <div
+    id="item-modal"
+    class="modal hidden"
+    aria-modal="true"
+    role="dialog"
+    aria-labelledby="modal-title"
+    tabindex="-1"
+  >
     <div class="modal-overlay" id="modal-overlay"></div>
     <div class="modal-content">
       <button class="close-modal" id="close-modal" aria-label="Fermer la fenêtre">&times;</button>
@@ -147,21 +179,27 @@
 
       <form id="item-form">
         <input type="hidden" id="item-id" />
-        
+
         <!-- Infos principales -->
         <div class="form-section main-info">
           <div class="form-group">
             <label for="item-type">Catégorie *</label>
             <select id="item-type" required aria-required="true"></select>
           </div>
-      
+
           <div class="form-group">
             <label for="item-title">Titre *</label>
-            <input type="text" id="item-title" required placeholder="Ex: One Piece" aria-required="true" />
+            <input
+              type="text"
+              id="item-title"
+              required
+              placeholder="Ex: One Piece"
+              aria-required="true"
+            />
             <div id="manga-autocomplete" class="autocomplete"></div>
           </div>
         </div>
-      
+
         <!-- Stats et progression -->
         <div class="form-section stats">
           <div class="form-row">
@@ -178,7 +216,7 @@
               <input type="number" id="item-score" min="0" max="10" step="1" value="0" />
             </div>
           </div>
-      
+
           <div class="form-row">
             <div class="form-group half">
               <label for="item-chapter">Chap/Ep actuel</label>
@@ -190,7 +228,7 @@
             </div>
           </div>
         </div>
-      
+
         <!-- Dates -->
         <div class="form-section dates">
           <div class="form-row">
@@ -204,7 +242,7 @@
             </div>
           </div>
         </div>
-      
+
         <!-- Médias -->
         <div class="form-section media">
           <div class="form-group">
@@ -221,7 +259,7 @@
             </div>
             <input type="url" id="item-url" placeholder="https://anime-sama.fr" />
           </div>
-      
+
           <div class="form-group">
             <label for="item-cover">Couverture</label>
             <div class="cover-controls">
@@ -233,25 +271,29 @@
             <img id="cover-preview" class="cover-preview" alt="Aperçu" />
           </div>
         </div>
-      
+
         <!-- Notes et tags -->
         <div class="form-section notes">
           <div class="form-group">
             <label for="item-notes">Notes personnelles</label>
-            <textarea id="item-notes" rows="3" placeholder="Vos remarques, progressions, etc."></textarea>
+            <textarea
+              id="item-notes"
+              rows="3"
+              placeholder="Vos remarques, progressions, etc."
+            ></textarea>
           </div>
-      
+
           <div class="form-group">
             <label for="item-tags">Tags</label>
             <input type="text" id="item-tags" placeholder="action, comédie, etc." />
           </div>
-      
+
           <div class="form-checkbox">
             <input type="checkbox" id="item-fav" />
             <label for="item-fav">Ajouter aux favoris</label>
           </div>
         </div>
-      
+
         <!-- Actions -->
         <div class="form-actions">
           <button type="button" id="cancel-btn">
@@ -267,26 +309,52 @@
   <!-- /MODALE ITEM -->
 
   <!-- MODALE CATEGORIES -->
-  <div id="cat-modal" class="modal-cat hidden" aria-modal="true" role="dialog" aria-labelledby="cat-modal-title"
-    tabindex="-1">
+  <div
+    id="cat-modal"
+    class="modal-cat hidden"
+    aria-modal="true"
+    role="dialog"
+    aria-labelledby="cat-modal-title"
+    tabindex="-1"
+  >
     <div class="modal-cat-overlay" id="cat-modal-overlay"></div>
     <div class="modal-cat-content">
       <button id="close-cat-modal" class="close-modal" aria-label="Fermer la fenêtre">&times;</button>
       <h2 id="cat-modal-title">Gérer les Catégories</h2>
       <ul id="cat-list"></ul>
       <div class="cat-actions">
-        <input type="text" id="cat-input" placeholder="Nouvelle catégorie..." aria-label="Nouvelle catégorie" />
-        <button class="add-cat-btn" id="add-cat-btn" aria-label="Ajouter une nouvelle catégorie">+ Ajouter</button>
+        <input
+          type="text"
+          id="cat-input"
+          placeholder="Nouvelle catégorie..."
+          aria-label="Nouvelle catégorie"
+        />
+        <button class="add-cat-btn" id="add-cat-btn" aria-label="Ajouter une nouvelle catégorie">
+          + Ajouter
+        </button>
       </div>
     </div>
   </div>
   <!-- /MODALE CATEGORIES -->
 
   <!-- MODALE STATS (GRAPHIQUES) -->
-  <div id="stats-modal" class="modal-stats hidden" aria-modal="true" role="dialog" aria-labelledby="stats-modal-title" tabindex="-1">
+  <div
+    id="stats-modal"
+    class="modal-stats hidden"
+    aria-modal="true"
+    role="dialog"
+    aria-labelledby="stats-modal-title"
+    tabindex="-1"
+  >
     <div class="modal-stats-overlay" id="stats-modal-overlay"></div>
     <div class="modal-stats-content">
-      <button id="close-stats-modal" class="close-modal" aria-label="Fermer les statistiques">&times;</button>
+      <button
+        id="close-stats-modal"
+        class="close-modal"
+        aria-label="Fermer les statistiques"
+      >
+        &times;
+      </button>
       <h2 id="stats-modal-title" class="stats-title">Vue d'ensemble de votre collection</h2>
 
       <!-- Cartes de statistiques rapides -->
@@ -313,7 +381,7 @@
         </div>
       </div>
 
-      <!-- Graphiques principaux -->
+      <!-- Graphiques -->
       <div class="stats-charts-container">
         <div class="stats-chart-section">
           <div class="stats-chart-header">
@@ -380,14 +448,29 @@
   <!-- TOAST NOTIFICATIONS -->
   <div id="toast-container"></div>
 
+  <!-- Bottom Navigation pour Mobile -->
+  <nav class="bottom-nav">
+    <a href="#" class="bottom-nav-btn active" id="nav-home">
+      <i class="fas fa-home"></i>
+      <span>Accueil</span>
+    </a>
+    <a href="#" class="bottom-nav-btn" id="nav-search">
+      <i class="fas fa-search"></i>
+      <span>Rechercher</span>
+    </a>
+    <a href="#" class="bottom-nav-btn" id="nav-add">
+      <i class="fas fa-plus"></i>
+      <span>Ajouter</span>
+    </a>
+    <a href="#" class="bottom-nav-btn" id="nav-menu">
+      <i class="fas fa-bars"></i>
+      <span>Menu</span>
+    </a>
+  </nav>
+
   <!-- SCRIPTS -->
-  <!-- Load Supabase first -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <!-- Then load our modules in the correct order -->
   <script type="module" src="utils.js"></script>
   <script type="module" src="supabase.js"></script>
   <script type="module" src="script.js"></script>
-  <!-- end -->
 </body>
-
 </html>

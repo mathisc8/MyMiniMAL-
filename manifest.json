@@ -1,0 +1,16 @@
+{
+  "name": "MyMiniMAL++",
+  "short_name": "MyMiniMAL++",
+  "description": "Gérez votre collection de mangas, animes et plus encore",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#3F51B5",
+  "icons": [
+    {
+      "src": "icons/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

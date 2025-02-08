@@ -257,7 +257,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     initItemModal();
     initSearch();
     initStatsModal();
-    initHamburgerMenu();
 
     toggleThemeBtn.addEventListener("click", toggleTheme);
     exportBtn.addEventListener("click", exportDataToJSON);
@@ -302,6 +301,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Ajouter l'écouteur pour la touche Suppr
     document.addEventListener('keydown', handleKeyPress);
+
+    if (window.innerWidth <= 768) {
+      initMobileNavigation();
+    }
   } catch (error) {
     console.error('Error during initialization:', error);
     showToast('Error initializing application', 'error');
@@ -1367,37 +1370,38 @@ const removeDuplicates = () => {
 /****************************************************
  *               MENU HAMBURGER                      *
  ****************************************************/
-const initHamburgerMenu = () => {
-    const hamburger = document.getElementById('hamburger');
-    const navRight = document.querySelector('.nav-right');
-    const navCenter = document.querySelector('.nav-center');
+// Supprimer cette fonction qui n'est plus nécessaire
+// const initHamburgerMenu = () => {
+//     const hamburger = document.getElementById('hamburger');
+//     const navRight = document.querySelector('.nav-right');
+//     const navCenter = document.querySelector('.nav-center');
 
-    hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        navRight.classList.toggle('active');
-        navCenter.classList.toggle('active');
-    });
+//     hamburger.addEventListener('click', () => {
+//         hamburger.classList.toggle('active');
+//         navRight.classList.toggle('active');
+//         navCenter.classList.toggle('active');
+//     });
 
-    // Fermer le menu quand on clique sur un lien ou en dehors
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.hamburger') && 
-            !e.target.closest('.nav-right') && 
-            !e.target.closest('.nav-center')) {
-            hamburger.classList.remove('active');
-            navRight.classList.remove('active');
-            navCenter.classList.remove('active');
-        }
-    });
+//     // Fermer le menu quand on clique sur un lien ou en dehors
+//     document.addEventListener('click', (e) => {
+//         if (!e.target.closest('.hamburger') && 
+//             !e.target.closest('.nav-right') && 
+//             !e.target.closest('.nav-center')) {
+//             hamburger.classList.remove('active');
+//             navRight.classList.remove('active');
+//             navCenter.classList.remove('active');
+//         }
+//     });
 
-    // Fermer le menu quand l'écran est redimensionné
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) {
-            hamburger.classList.remove('active');
-            navRight.classList.remove('active');
-            navCenter.classList.remove('active');
-        }
-    });
-};
+//     // Fermer le menu quand l'écran est redimensionné
+//     window.addEventListener('resize', () => {
+//         if (window.innerWidth > 768) {
+//             hamburger.classList.remove('active');
+//             navRight.classList.remove('active');
+//             navCenter.classList.remove('active');
+//         }
+//     });
+// };
 
 const mangaAutocomplete = document.getElementById('manga-autocomplete');
 const coverPreview = document.getElementById('cover-preview');
@@ -1666,4 +1670,38 @@ function selectManga(manga) {
     mangaAutocomplete.style.display = 'none';
 }
 
-// ...rest of existing code...
+// Mobile Navigation Handler
+function initMobileNavigation() {
+  const searchContainer = document.querySelector('.search-container');
+  const navRight = document.querySelector('.nav-right');
+
+  // Bottom Nav Handlers
+  document.getElementById('nav-search').addEventListener('click', (e) => {
+    e.preventDefault();
+    searchContainer.classList.toggle('active');
+    navRight.classList.remove('active');
+    document.querySelector('.search-input').focus();
+  });
+
+  document.getElementById('nav-add').addEventListener('click', (e) => {
+    e.preventDefault();
+    openModalForAdd();
+  });
+
+  document.getElementById('nav-menu').addEventListener('click', (e) => {
+    e.preventDefault();
+    navRight.classList.toggle('active');
+    searchContainer.classList.remove('active');
+  });
+
+  // Fermer les menus au scroll
+  let lastScroll = 0;
+  window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    if (currentScroll > lastScroll) {
+      searchContainer.classList.remove('active');
+      navRight.classList.remove('active');
+    }
+    lastScroll = currentScroll;
+  });
+}
