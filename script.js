@@ -1670,38 +1670,73 @@ function selectManga(manga) {
     mangaAutocomplete.style.display = 'none';
 }
 
-// Mobile Navigation Handler
+// Remplacer la fonction initMobileNavigation par celle-ci
 function initMobileNavigation() {
   const searchContainer = document.querySelector('.search-container');
   const navRight = document.querySelector('.nav-right');
 
   // Bottom Nav Handlers
+  document.getElementById('nav-home').addEventListener('click', (e) => {
+    e.preventDefault();
+    searchContainer.classList.remove('active');
+    navRight.classList.remove('active');
+    renderList('all'); // Rafraîchit la liste
+  });
+
   document.getElementById('nav-search').addEventListener('click', (e) => {
     e.preventDefault();
     searchContainer.classList.toggle('active');
     navRight.classList.remove('active');
-    document.querySelector('.search-input').focus();
+    if (searchContainer.classList.contains('active')) {
+      document.querySelector('.search-input').focus();
+    }
   });
 
   document.getElementById('nav-add').addEventListener('click', (e) => {
     e.preventDefault();
     openModalForAdd();
+    searchContainer.classList.remove('active');
   });
 
   document.getElementById('nav-menu').addEventListener('click', (e) => {
     e.preventDefault();
     navRight.classList.toggle('active');
     searchContainer.classList.remove('active');
+    
+    // Si le menu est actif, l'afficher en position fixe
+    if (navRight.classList.contains('active')) {
+      navRight.style.display = 'flex';
+      navRight.style.flexDirection = 'column';
+      navRight.style.position = 'fixed';
+      navRight.style.top = '60px';
+      navRight.style.left = '0';
+      navRight.style.width = '100%';
+      navRight.style.background = 'var(--card-background)';
+      navRight.style.padding = '1rem';
+      navRight.style.boxShadow = 'var(--header-shadow)';
+      navRight.style.zIndex = '998';
+    } else {
+      navRight.style.display = 'none';
+    }
   });
 
   // Fermer les menus au scroll
-  let lastScroll = 0;
   window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    if (currentScroll > lastScroll) {
-      searchContainer.classList.remove('active');
-      navRight.classList.remove('active');
-    }
-    lastScroll = currentScroll;
+    searchContainer.classList.remove('active');
+    navRight.classList.remove('active');
+    navRight.style.display = 'none';
+  });
+
+  // Mettre à jour l'état actif des boutons
+  const updateActiveButton = (clickedId) => {
+    document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.id === clickedId);
+    });
+  };
+
+  // Ajouter l'écouteur pour chaque bouton
+  document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => updateActiveButton(btn.id));
   });
 }
+
