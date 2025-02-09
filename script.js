@@ -1221,6 +1221,26 @@ const updateStats = () => {
 
   if (chartCat) chartCat.destroy(); // Détruire l'ancien graphique si existant
 
+  // Ajuster les options des graphiques pour mobile
+  const isMobile = window.innerWidth <= 768;
+  const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: isMobile ? 'bottom' : 'right',
+        labels: {
+          boxWidth: isMobile ? 12 : 20,
+          padding: isMobile ? 10 : 20,
+          font: {
+            size: isMobile ? 10 : 12
+          }
+        }
+      }
+    }
+  };
+
+  // Pour le graphique en barres
   chartCat = new Chart(document.getElementById('stats-chart-cat'), {
     type: 'bar',
     data: {
@@ -1228,21 +1248,55 @@ const updateStats = () => {
       datasets: [{
         label: 'Nombre d\'éléments',
         data: dataCat,
-        backgroundColor: 'rgba(63, 81, 181, 0.6)', // Couleur Indigo avec transparence
+        backgroundColor: 'rgba(63, 81, 181, 0.6)',
         borderColor: 'rgba(63, 81, 181, 1)',
         borderWidth: 1
       }]
     },
     options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: { display: false }
-      },
+      ...commonOptions,
       scales: {
-        y: { beginAtZero: true }
+        y: { 
+          beginAtZero: true,
+          ticks: {
+            font: {
+              size: isMobile ? 10 : 12
+            }
+          }
+        },
+        x: {
+          ticks: {
+            font: {
+              size: isMobile ? 10 : 12
+            },
+            maxRotation: isMobile ? 45 : 0
+          }
+        }
       }
     }
+  });
+
+  // Pour le graphique circulaire
+  chartStatus = new Chart(document.getElementById('stats-chart-status'), {
+    type: 'pie',
+    data: {
+      labels: labelsStatus,
+      datasets: [{
+        data: dataStatus,
+        backgroundColor: [
+          'rgba(56, 142, 60, 0.6)',
+          'rgba(211, 47, 47, 0.6)',
+          'rgba(251, 192, 45, 0.6)'
+        ],
+        borderColor: [
+          'rgba(56, 142, 60, 1)',
+          'rgba(211, 47, 47, 1)',
+          'rgba(251, 192, 45, 1)'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: commonOptions
   });
 
   // 3) Par Statut
@@ -1278,13 +1332,7 @@ const updateStats = () => {
         borderWidth: 1
       }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false }
-      }
-    }
+    options: commonOptions
   });
 
   // 4) Item le plus avancé
@@ -1328,16 +1376,16 @@ const updateStats = () => {
         borderWidth: 1
       }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false }
-      }
-    }
+    options: commonOptions
   });
 };
 
+// Ajouter une fonction pour gérer le redimensionnement
+window.addEventListener('resize', () => {
+  if (statsModal && !statsModal.classList.contains('hidden')) {
+    updateStats(); // Mettre à jour les graphiques si le modal est ouvert
+  }
+});
 
 /****************************************************
  *                  TOAST NOTIFICATIONS             *
