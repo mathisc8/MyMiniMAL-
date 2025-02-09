@@ -58,16 +58,16 @@ body {
   --accent-color-rgb: 63, 81, 181;
 
   /* Mode sombre */
-  --dark-bg: #1a1a1a;
-  --dark-surface: #2d2d2d;
+  --dark-bg: #121212;
+  --dark-surface: #1e1e1e;
   --dark-text: #ffffff;
-  --dark-text-secondary: #b3b3b3;
-  --dark-border: rgba(255, 255, 255, 0.15);
-  --dark-hover: rgba(255, 255, 255, 0.1);
-  --dark-card: #333333;
-  --dark-input: #404040;
-  --dark-accent: #7986CB;
-  --dark-accent-hover: #9FA8DA;
+  --dark-text-secondary: #cecece;
+  --dark-border: rgba(255, 255, 255, 0.1);
+  --dark-hover: rgba(255, 255, 255, 0.05);
+  --dark-card: #242424;
+  --dark-input: #2d2d2d;
+  --dark-accent: #90CAF9; /* Bleu plus clair pour meilleur contraste */
+  --dark-accent-hover: #64B5F6;
 }
 
 body.dark-mode {
@@ -78,28 +78,71 @@ body.dark-mode {
   --accent-color: var(--dark-accent);
   --accent-hover: var(--dark-accent-hover);
   --header-bg: var(--dark-surface);
-  --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --header-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   --filter-bg: var(--dark-surface);
-  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --modal-overlay: rgba(0, 0, 0, 0.8);
   --delete-btn-bg: #E57373;
   --status-en-cours: #81C784;
-  --status-termine: #EF9A9A;
-  --status-pause: #FFE082;
-  --toast-bg-success: #2E7D32;
-  --toast-bg-error: #C62828;
-  --toast-bg-warning: #F9A825;
-  --toast-bg-info: #1976D2;
+  --status-termine: #FF8A80;   /* Rouge plus clair */
+  --status-pause: #FFD54F;     /* Jaune plus clair */
+  --toast-bg-success: #4CAF50;
+  --toast-bg-error: #F44336;
+  --toast-bg-warning: #FFA726;
+  --toast-bg-info: #29B6F6;
   --input-bg: var(--dark-input);
   --input-border: var(--dark-border);
-  --input-focus: #7986CB;
-  --card-shadow: rgba(255, 255, 255, 0.1);
-  --card-hover-shadow: rgba(255, 255, 255, 0.2);
-  --tag-bg: #757575;
+  --input-focus: var(--dark-accent);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  --card-hover-shadow: rgba(0, 0, 0, 0.4);
+  --tag-bg: #424242;
   --tag-color: #FAFAFA;
-  --minimal-card-bg: #424242;
+  --minimal-card-bg: #2d2d2d;
   --select-arrow: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12"><path fill="%23BDBDBD" d="M6 9L1.5 4.5h9L6 9z"/></svg>') no-repeat right 10px center;
   --border-color: var(--dark-border);
   --hover-bg: var(--dark-hover);
+}
+
+/* Ajustements spécifiques pour le mode sombre */
+body.dark-mode .flip-card-front {
+  background: linear-gradient(135deg, rgba(36, 36, 36, 0.95) 60%, rgba(36, 36, 36, 0.85) 100%);
+}
+
+body.dark-mode .flip-card-back {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 60%, rgba(30, 30, 30, 0.85) 100%);
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .modal-cat-content,
+body.dark-mode .modal-stats-content {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .form-group textarea:focus {
+  border-color: var(--dark-accent);
+  box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
+}
+
+/* Amélioration de la lisibilité des éléments de formulaire en mode sombre */
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+  background: var(--dark-input);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
+/* Ajustement des cartes statistiques en mode sombre */
+body.dark-mode .stat-card {
+  background: var(--dark-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Amélioration de la visibilité des boutons en mode sombre */
+body.dark-mode .icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--dark-accent);
 }
 
 a {
@@ -546,12 +589,15 @@ a {
   background: linear-gradient(135deg, rgba(245, 245, 245, 0.95) 60%, rgba(245, 245, 245, 0.85) 100%);
 }
 body.dark-mode .flip-card-front {
-  background: linear-gradient(135deg, rgba(66, 66, 66, 0.95) 60%, rgba(66, 66, 66, 0.85) 100%);
+  background: linear-gradient(135deg, rgba(36, 36, 36, 0.95) 60%, rgba(36, 36, 36, 0.85) 100%);
 }
 .flip-card-back {
   transform: rotateY(180deg);
   background: linear-gradient(135deg, rgba(66, 66, 66, 0.95) 60%, rgba(66, 66, 66, 0.85) 100%);
   color: #FAFAFA;
+}
+body.dark-mode .flip-card-back {
+  background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 60%, rgba(30, 30, 30, 0.85) 100%);
 }
 
 /* Bouton Flip */
@@ -915,6 +961,22 @@ body.dark-mode .flip-card-front {
   box-shadow: 0 0 6px rgba(0, 123, 255, 0.5);
 }
 
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus,
+body.dark-mode .form-group textarea:focus {
+  border-color: var(--dark-accent);
+  box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
+}
+
+/* Amélioration de la lisibilité des éléments de formulaire en mode sombre */
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+  background: var(--dark-input);
+  color: var(--dark-text);
+  border-color: var(--dark-border);
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -1212,6 +1274,10 @@ body.dark-mode .flip-card-front {
 .stat-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+body.dark-mode .stat-card {
+  background: var(--dark-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 .stat-card i {
   font-size: 2rem;
