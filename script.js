@@ -55,6 +55,79 @@ const exportDataToJSON = () => {
   showToast("Données exportées avec succès.", "success");
 };
 
+// Fonction pour gérer l'import
+async function handleImport(file) {
+    try {
+        const content = await file.text();
+        const data = JSON.parse(content);
+
+        // Vérifie si le fichier a la bonne structure
+        if (!data.myList || !Array.isArray(data.myList)) {
+            throw new Error("Format de fichier invalide");
+        }
+
+        // Normalise les données importées
+        const normalizedItems = data.myList.map(item => {
+            // Génère un nouveau UUID pour chaque item
+            return {
+                id: generateUUID(), // Toujours générer un nouvel UUID
+                user_id: currentUser?.id || null,
+                type: item.type || "Manga",
+                title: item.title || "",
+                cover: item.cover || "",
+                chapter: parseInt(item.chapter) || 0,
+                total: parseInt(item.total) || 0,
+                status: item.status || "en-cours",
+                score: parseFloat(item.score) || 0,
+                url: item.url || "",
+                is_fav: Boolean(item.is_fav),
+                notes: item.notes || "",
+                start_date: item.start_date || null,
+                end_date: item.end_date || null,
+                tags: Array.isArray(item.tags) ? item.tags : [],
+                updated_at: new Date().toISOString()
+            };
+        });
+
+        // Met à jour la liste via les fonctions de Supabase
+        for (const item of normalizedItems) {
+            try {
+                await addItem(item);
+            } catch (error) {
+                console.error(`Erreur lors de l'ajout de ${item.title}:`, error);
+            }
+        }
+
+        // Met à jour les catégories si nécessaire
+        if (data.categories && Array.isArray(data.categories)) {
+            for (const category of data.categories) {
+                await addCategory(category);
+            }
+        }
+
+        // Recharge les données
+        await loadItems();
+        await loadCategories();
+        
+        // Rafraîchit l'interface
+        updateCategorySelect();
+        renderList();
+        showToast("Import réussi!", "success");
+
+    } catch (error) {
+        console.error("Erreur lors de l'import:", error);
+        showToast("Erreur lors de l'import: " + error.message, "error");
+    }
+}
+
+// Gestionnaire d'événement pour l'import
+document.getElementById('import-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        handleImport(file);
+    }
+});
+
 /****************************************************
  *       RECHERCHE, FILTRAGE ET TRI DES ITEMS        *
  ****************************************************/
@@ -221,7 +294,7 @@ const suggestions = document.getElementById("suggestions"); // Élément ajouté
 
 // IMPORT/EXPORT
 const exportBtn = document.getElementById("export-btn");
-const importFile = document.getElementById("import-file");
+// const importFile = document.getElementById("import-file");
 
 // TOAST
 const toastContainer = document.getElementById("toast-container");
@@ -260,12 +333,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     toggleThemeBtn.addEventListener("click", toggleTheme);
     exportBtn.addEventListener("click", exportDataToJSON);
-    importFile.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files[0]) {
-        importDataFromJSON(e.target.files[0]);
-        e.target.value = ""; // Reset input file
-      }
-    });
+    // importFile.addEventListener("change", (e) => {
+    //   if (e.target.files && e.target.files[0]) {
+    //     importDataFromJSON(e.target.files[0]);
+    //     e.target.value = ""; // Reset input file
+    //   }
+    // });
     btnRemoveDuplicates.addEventListener("click", removeDuplicates);
 
     // Boutons Vue Minimaliste
@@ -891,18 +964,63 @@ const createFlipCard = (item) => {
   back.appendChild(backTitle);
 
   const infoDiv = document.createElement("div");
-  infoDiv.className = "back-info";
-  infoDiv.innerHTML = `
-    <p><strong>Score :</strong> ${item.score}/10</p>
-    <div class="stars">${createStars(item.score)}</div>
-  `;
-  // Affiche les tags s'il y en a
-  if (item.tags && item.tags.length > 0) {
-    infoDiv.innerHTML += `<p><strong>Tags :</strong> ${item.tags.join(", ")}</p>`;
-  }
-  back.appendChild(infoDiv);
+infoDiv.className = "back-info";
 
-  // Notes
+// Créer le compteur de score
+const scoreContainer = document.createElement("div");
+scoreContainer.className = "score-counter";
+scoreContainer.innerHTML = `
+  <span><strong>Score :</strong></span>
+  <div class="score-controls">
+    <button class="score-btn" data-action="decrease">-</button>
+    <span class="score-value">${item.score}/10</span>
+    <button class="score-btn" data-action="increase">+</button>
+  </div>
+`;
+
+// Ajouter les gestionnaires d'événements pour les boutons
+const scoreButtons = scoreContainer.querySelectorAll('.score-btn');
+scoreButtons.forEach(btn => {
+  btn.addEventListener('click', async (e) => {
+    e.stopPropagation(); // Empêcher la propagation au parent
+    const action = btn.dataset.action;
+    const currentScore = item.score || 0;
+    
+    if (action === 'increase' && currentScore < 10) {
+      item.score = currentScore + 1;
+    } else if (action === 'decrease' && currentScore > 0) {
+      item.score = currentScore - 1;
+    }
+
+    // Mettre à jour l'affichage
+    const scoreValue = scoreContainer.querySelector('.score-value');
+    scoreValue.textContent = `${item.score}/10`;
+    
+    // Créer la div des étoiles si elle n'existe pas
+    let starsDiv = infoDiv.querySelector('.stars');
+    if (!starsDiv) {
+      starsDiv = document.createElement('div');
+      starsDiv.className = 'stars';
+      infoDiv.appendChild(starsDiv);
+    }
+    starsDiv.innerHTML = createStars(item.score);
+    
+    // Sauvegarder la modification
+    await updateItem(item);
+  });
+});
+
+infoDiv.appendChild(scoreContainer);
+
+// Ajouter la div des étoiles
+const starsDiv = document.createElement('div');
+starsDiv.className = 'stars';
+starsDiv.innerHTML = createStars(item.score);
+infoDiv.appendChild(starsDiv);
+
+back.appendChild(infoDiv);
+
+// Notes
   if (item.notes) {
     const notesDiv = document.createElement("div");
     notesDiv.className = "notes-section";
@@ -1156,186 +1274,210 @@ const removeActive = (items) => {
     item.setAttribute("aria-selected", "false");
   }
 };
-
 /****************************************************
  *               MODALE STATS (GRAPHIQUES)           *
  ****************************************************/
+
+// Déclaration globale des graphiques pour pouvoir les détruire avant recréation
 let chartCat, chartStatus, chartTags;
-// Fonction pour générer un tableau de couleurs aléatoires
+
+// Fonction utilitaire pour générer un tableau de couleurs (pour les graphiques)
 const generateColorArray = (num) => {
-  const colors = [];
   const baseColors = [
     'rgba(255, 99, 132, 0.6)',   // Rouge
-    'rgba(54, 162, 235, 0.6)',   // Bleu
-    'rgba(255, 206, 86, 0.6)',   // Jaune
-    'rgba(75, 192, 192, 0.6)',   // Vert
-    'rgba(153, 102, 255, 0.6)',  // Violet
-    'rgba(255, 159, 64, 0.6)'    // Orange
+    'rgba(54, 162, 235, 0.6)',    // Bleu
+    'rgba(255, 206, 86, 0.6)',    // Jaune
+    'rgba(75, 192, 192, 0.6)',    // Vert
+    'rgba(153, 102, 255, 0.6)',   // Violet
+    'rgba(255, 159, 64, 0.6)'     // Orange
   ];
+  const colors = [];
   for (let i = 0; i < num; i++) {
     colors.push(baseColors[i % baseColors.length]);
   }
   return colors;
 };
 
-
-const initStatsModal = () => {
-  document.getElementById("btn-show-stats").addEventListener("click", openStatsModal);
-  statsModalOverlay.addEventListener("click", closeStatsModalFn);
-  closeStatsModal.addEventListener("click", closeStatsModalFn);
-  // Ajout de l'écouteur pour supprimer les doublons
-  document.getElementById("btn-remove-duplicates").addEventListener("click", removeDuplicates);
-};
-const openStatsModal = () => {
-  updateStats();
-  statsModal.classList.remove("hidden");
-  // Focus management
-  statsModal.focus();
-};
-const closeStatsModalFn = () => {
-  statsModal.classList.add("hidden");
-  // Return focus au bouton d'affichage des stats
-  document.getElementById("btn-show-stats").focus();
-};
 const updateStats = () => {
-  // 1) Total + moyenne
-  const total = myList.length;
-  statsTotal.textContent = total;
-  if (total === 0) {
-    statsAverage.textContent = "0";
-  } else {
-    const avg = (myList.reduce((acc, it) => acc + (it.score || 0), 0) / total).toFixed(1);
-    statsAverage.textContent = avg;
-  }
+  try {
+    // 1) Statistiques globales : total et moyenne des scores
+    const totalItems = myList.length;
+    if (statsTotal) {
+      statsTotal.textContent = totalItems;
+    } else {
+      console.error("L'élément statsTotal est introuvable");
+    }
 
-  // 2) Par Catégorie
-  const countsByCat = {};
-  categories.forEach(cat => countsByCat[cat] = 0);
-  myList.forEach(it => {
-    if (!countsByCat[it.type]) countsByCat[it.type] = 0;
-    countsByCat[it.type]++;
-  });
-
-  const labelsCat = Object.keys(countsByCat);
-  const dataCat = Object.values(countsByCat);
-
-  if (chartCat) chartCat.destroy(); // Détruire l'ancien graphique si existant
-
-  chartCat = new Chart(document.getElementById('stats-chart-cat'), {
-    type: 'bar',
-    data: {
-      labels: labelsCat,
-      datasets: [{
-        label: 'Nombre d\'éléments',
-        data: dataCat,
-        backgroundColor: 'rgba(63, 81, 181, 0.6)', // Couleur Indigo avec transparence
-        borderColor: 'rgba(63, 81, 181, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-        title: { display: false }
-      },
-      scales: {
-        y: { beginAtZero: true }
+    if (statsAverage) {
+      if (totalItems === 0) {
+        statsAverage.textContent = "0";
+      } else {
+        const avgScore = (myList.reduce((sum, item) => sum + (item.score || 0), 0) / totalItems).toFixed(1);
+        statsAverage.textContent = avgScore;
       }
+    } else {
+      console.error("L'élément statsAverage est introuvable");
     }
-  });
 
-  // 3) Par Statut
-  const allStatus = ["en-cours", "termine", "pause"];
-  const countsByStatus = { "en-cours": 0, termine: 0, pause: 0 };
-  myList.forEach(it => {
-    if (countsByStatus[it.status] !== undefined) {
-      countsByStatus[it.status]++;
-    }
-  });
-
-  const labelsStatus = allStatus.map(st => statusToLabel(st));
-  const dataStatus = allStatus.map(st => countsByStatus[st]);
-
-  if (chartStatus) chartStatus.destroy();
-
-  chartStatus = new Chart(document.getElementById('stats-chart-status'), {
-    type: 'pie',
-    data: {
-      labels: labelsStatus,
-      datasets: [{
-        data: dataStatus,
-        backgroundColor: [
-          'rgba(56, 142, 60, 0.6)',   // Vert pour "En cours"
-          'rgba(211, 47, 47, 0.6)',   // Rouge pour "Terminé"
-          'rgba(251, 192, 45, 0.6)'    // Jaune pour "En pause"
-        ],
-        borderColor: [
-          'rgba(56, 142, 60, 1)',
-          'rgba(211, 47, 47, 1)',
-          'rgba(251, 192, 45, 1)'
-        ],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false }
-      }
-    }
-  });
-
-  // 4) Item le plus avancé
-  if (myList.length > 0) {
-    let maxItem = myList[0];
-    myList.forEach(it => {
-      if (calculateProgress(it) > calculateProgress(maxItem)) {
-        maxItem = it;
+    // 2) Statistiques par catégorie
+    const countsByCat = {};
+    // Initialisation à 0 pour chaque catégorie connue
+    categories.forEach(cat => countsByCat[cat] = 0);
+    // Comptage dans myList
+    myList.forEach(item => {
+      const cat = item.type;
+      if (countsByCat.hasOwnProperty(cat)) {
+        countsByCat[cat]++;
+      } else {
+        countsByCat[cat] = 1;
       }
     });
-    statsMostAdvanced.textContent = `${maxItem.title} (${calculateProgress(maxItem)}% complété)`;
-  } else {
-    statsMostAdvanced.textContent = "Aucun item";
-  }
+    const labelsCat = Object.keys(countsByCat);
+    const dataCat = Object.values(countsByCat);
 
-  // 5) Par Tags
-  const tagCounts = {};
-  myList.forEach(it => {
-    if (it.tags && it.tags.length > 0) {
-      it.tags.forEach(tag => {
-        if (!tagCounts[tag]) tagCounts[tag] = 0;
-        tagCounts[tag]++;
+    // Destruction de l'ancien graphique s'il existe
+    if (chartCat) chartCat.destroy();
+    const catCtx = document.getElementById('stats-chart-cat');
+    if (catCtx) {
+      chartCat = new Chart(catCtx, {
+        type: 'bar',
+        data: {
+          labels: labelsCat,
+          datasets: [{
+            label: "Nombre d'éléments",
+            data: dataCat,
+            backgroundColor: 'rgba(63, 81, 181, 0.6)',
+            borderColor: 'rgba(63, 81, 181, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false }, title: { display: false } },
+          scales: { y: { beginAtZero: true } }
+        }
       });
+    } else {
+      console.error("L'élément stats-chart-cat est introuvable");
     }
-  });
 
-  const labelsTags = Object.keys(tagCounts);
-  const dataTags = Object.values(tagCounts);
-
-  if (chartTags) chartTags.destroy();
-
-  chartTags = new Chart(document.getElementById('stats-chart-tags'), {
-    type: 'doughnut',
-    data: {
-      labels: labelsTags,
-      datasets: [{
-        label: 'Nombre d\'éléments par Tag',
-        data: dataTags,
-        backgroundColor: generateColorArray(labelsTags.length),
-        borderColor: 'rgba(255, 255, 255, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false }
+    // 3) Statistiques par statut
+    const statuses = ["en-cours", "termine", "pause"];
+    const countsByStatus = { "en-cours": 0, "termine": 0, "pause": 0 };
+    myList.forEach(item => {
+      if (countsByStatus.hasOwnProperty(item.status)) {
+        countsByStatus[item.status]++;
       }
+    });
+    const labelsStatus = statuses.map(st => statusToLabel(st));
+    const dataStatus = statuses.map(st => countsByStatus[st]);
+
+    if (chartStatus) chartStatus.destroy();
+    const statusCtx = document.getElementById('stats-chart-status');
+    if (statusCtx) {
+      chartStatus = new Chart(statusCtx, {
+        type: 'pie',
+        data: {
+          labels: labelsStatus,
+          datasets: [{
+            data: dataStatus,
+            backgroundColor: [
+              'rgba(56, 142, 60, 0.6)',   // Vert pour "En cours"
+              'rgba(211, 47, 47, 0.6)',    // Rouge pour "Terminé"
+              'rgba(251, 192, 45, 0.6)'    // Jaune pour "En pause"
+            ],
+            borderColor: [
+              'rgba(56, 142, 60, 1)',
+              'rgba(211, 47, 47, 1)',
+              'rgba(251, 192, 45, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' }, title: { display: false } }
+        }
+      });
+    } else {
+      console.error("L'élément stats-chart-status est introuvable");
     }
+
+    // 4) Item le plus avancé
+    if (myList.length > 0) {
+      let maxItem = myList[0];
+      myList.forEach(item => {
+        if (calculateProgress(item) > calculateProgress(maxItem)) {
+          maxItem = item;
+        }
+      });
+      if (statsMostAdvanced) {
+        statsMostAdvanced.textContent = `${maxItem.title} (${calculateProgress(maxItem)}% complété)`;
+      } else {
+        console.error("L'élément stats-most-advanced est introuvable");
+      }
+    } else {
+      if (statsMostAdvanced) statsMostAdvanced.textContent = "Aucun item";
+    }
+
+    // 5) Statistiques par Tags
+    const tagCounts = {};
+    myList.forEach(item => {
+      if (Array.isArray(item.tags)) {
+        item.tags.forEach(tag => {
+          tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        });
+      }
+    });
+    const labelsTags = Object.keys(tagCounts);
+    const dataTags = Object.values(tagCounts);
+
+    if (chartTags) chartTags.destroy();
+    const tagsCtx = document.getElementById('stats-chart-tags');
+    if (tagsCtx) {
+      chartTags = new Chart(tagsCtx, {
+        type: 'doughnut',
+        data: {
+          labels: labelsTags,
+          datasets: [{
+            label: "Nombre d'éléments par Tag",
+            data: dataTags,
+            backgroundColor: generateColorArray(labelsTags.length),
+            borderColor: 'rgba(255, 255, 255, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { position: 'bottom' }, title: { display: false } }
+        }
+      });
+    } else {
+      console.error("L'élément stats-chart-tags est introuvable");
+    }
+  } catch (err) {
+    console.error("Erreur lors de la mise à jour des statistiques :", err);
+    showToast("Erreur dans la mise à jour des statistiques.", "error");
+  }
+};
+
+// Initialisation de la modale statistiques
+const initStatsModal = () => {
+  document.getElementById("btn-show-stats").addEventListener("click", () => {
+    updateStats();
+    statsModal.classList.remove("hidden");
+    statsModal.focus();
   });
+  statsModalOverlay.addEventListener("click", () => {
+    statsModal.classList.add("hidden");
+    document.getElementById("btn-show-stats").focus();
+  });
+  closeStatsModal.addEventListener("click", () => {
+    statsModal.classList.add("hidden");
+    document.getElementById("btn-show-stats").focus();
+  });
+  // Par exemple, le bouton pour supprimer les doublons peut également réactualiser les stats
+  document.getElementById("btn-remove-duplicates").addEventListener("click", removeDuplicates);
 };
 
 
